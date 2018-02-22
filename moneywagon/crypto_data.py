@@ -1036,7 +1036,7 @@ crypto_data = {
                 '*': [Cryptonator],
             },
             'address_balance': [Etherscan, EtherChain, ETCchain, EthPlorer],
-            'historical_transactions': [],
+            'historical_transactions': [EthPlorer, Etherscan],
             'single_transaction': [],
             'push_tx': [],
             'unspent_outputs': [],

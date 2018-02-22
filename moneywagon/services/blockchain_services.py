@@ -19,12 +19,14 @@ try:
 except ImportError:
     from urllib.parse import urlencode, quote_plus
 
+
 def make_standard_nonce():
     return str(int(time.time() * 1000))
 
+
 class FullNodeCLIInterface(Service):
     service_id = None
-    cli_path = "" # set to full path to bitcoin-cli executable
+    cli_path = ""  # set to full path to bitcoin-cli executable
 
     def get_address_balance(self, crypto, address):
         return self.make_rpc_call(['getbalance', address])
@@ -58,10 +60,9 @@ class FullNodeCLIInterface(Service):
             version=r['version']
         )
 
-
     def get_single_transaction(self, crypto, txid, skip_input_info=False):
         tx = self.make_rpc_call(
-            ["getrawtransaction",  txid,  "1"], internal=skip_input_info
+            ["getrawtransaction", txid, "1"], internal=skip_input_info
         )
 
         ins = []
@@ -205,7 +206,6 @@ class BlockCypher(Service):
         fee_kb = self.get_url(url).json()['high_fee_per_kb']
         return int(tx_bytes * fee_kb / 1024.0)
 
-
     def get_block(self, crypto, block_hash='', block_number='', latest=False):
         if block_number == 0:
             raise SkipThisService("BlockCypher does not support block #0")
@@ -222,13 +222,14 @@ class BlockCypher(Service):
             time=arrow.get(r['received_time']).datetime,
             sent_value=r['total'] / 1e8,
             total_fees=r['fees'] / 1e8,
-            #mining_difficulty=r['bits'],
+            # mining_difficulty=r['bits'],
             hash=r['hash'],
             merkle_root=r['mrkl_root'],
             previous_hash=r['prev_block'],
             tx_count=r['n_tx'],
             txids=r['txids']
         )
+
 
 class BlockSeer(Service):
     """
@@ -464,7 +465,7 @@ class ChainSo(Service):
         return transactions
 
     def get_unspent_outputs(self, crypto, address, confirmations=1):
-        url = "%s/get_tx_unspent/%s/%s" %(self.base_url, crypto, address)
+        url = "%s/get_tx_unspent/%s/%s" % (self.base_url, crypto, address)
         utxos = []
         for utxo in self.get_url(url).json()['data']['txs']:
             utxos.append(dict(
@@ -478,7 +479,6 @@ class ChainSo(Service):
                 scriptPubKey_asm=utxo['script_asm'],
             ))
         return utxos
-
 
     def push_tx(self, crypto, tx_hex):
         url = "%s/send_tx/%s" % (self.base_url, crypto)
@@ -544,6 +544,7 @@ class ChainSo(Service):
             locktime=r['locktime'],
             version=r['version']
         )
+
 
 class CoinPrism(Service):
     service_id = 12
@@ -616,7 +617,6 @@ class CoinPrism(Service):
             block_number=r['block_height'],
             block_hash=r['block_hash']
         )
-
 
     def push_tx(self, crypto, tx_hex):
         """
@@ -704,7 +704,6 @@ class BlockChainInfo(Service):
             outputs=outs,
         )
 
-
     def get_unspent_outputs(self, crypto, address, confirmations=1):
         url = "https://%s/unspent?active=%s" % (self.domain, address)
 
@@ -715,7 +714,7 @@ class BlockChainInfo(Service):
         utxos = []
         for utxo in response.json()['unspent_outputs']:
             if utxo['confirmations'] < confirmations:
-                continue # don't return if too few confirmations
+                continue  # don't return if too few confirmations
 
             utxos.append(dict(
                 output="%s:%s" % (utxo['tx_hash_big_endian'], utxo['tx_output_n']),
@@ -755,8 +754,6 @@ class BlockChainInfo(Service):
         )
 
 
-
-
 ##################################
 
 class BitcoinAbe(Service):
@@ -764,6 +761,7 @@ class BitcoinAbe(Service):
     supported_cryptos = ['btc']
     base_url = "http://bitcoin-abe.info/chain/Bitcoin"
     name = "Abe"
+
     # decomissioned, kept here because other services need it as base class
 
     def get_balance(self, crypto, address, confirmations=1):
@@ -839,6 +837,7 @@ class Atorox(BitcoinAbe):
     base_url = "http://auroraexplorer.atorox.net/chain/AuroraCoin"
     name = "atorox.net"
 
+
 ##################################
 
 class NXTPortal(Service):
@@ -848,7 +847,7 @@ class NXTPortal(Service):
     name = "NXT Portal"
 
     def get_balance(self, crypto, address, confirmations=1):
-        url='http://nxtportal.org/nxt?requestType=getAccount&account=' + address
+        url = 'http://nxtportal.org/nxt?requestType=getAccount&account=' + address
         response = self.get_url(url)
         return float(response.json()['balanceNQT']) * 1e-8
 
@@ -1012,7 +1011,7 @@ class BitpayInsight(Service):
         return txs
 
     def _extract_scriptPubKey(self, scriptPubKey):
-        #import debug
+        # import debug
         if 'hex' in scriptPubKey:
             return scriptPubKey['hex']
 
@@ -1035,17 +1034,17 @@ class BitpayInsight(Service):
             confirmations=d['confirmations'] if block_time else 0,
             fee=currency_to_protocol(d['fees']) if 'fees' in d else None,
             inputs=[
-                {
-                    'address': x['addr'],
-                    'amount': currency_to_protocol(x['value']),
-                    'txid': x['txid'],
-                    'n': x['n'],
-                    'scriptSig': x['scriptSig'].get('hex'),
-                    'sequence': x['sequence']
-                } for x in d['vin'] if 'addr' in x
-            ] + [
-                {'coinbase': x['coinbase']} for x in d['vin'] if 'coinbase' in x
-            ],
+                       {
+                           'address': x['addr'],
+                           'amount': currency_to_protocol(x['value']),
+                           'txid': x['txid'],
+                           'n': x['n'],
+                           'scriptSig': x['scriptSig'].get('hex'),
+                           'sequence': x['sequence']
+                       } for x in d['vin'] if 'addr' in x
+                   ] + [
+                       {'coinbase': x['coinbase']} for x in d['vin'] if 'coinbase' in x
+                   ],
             outputs=[
                 {
                     'address': x['scriptPubKey'].get('addresses', [None])[0],
@@ -1114,10 +1113,10 @@ class BitpayInsight(Service):
         url = "%s://%s/%s/tx/send" % (self.protocol, self.domain, self.api_tag)
         return self.post_url(url, {'rawtx': tx_hex}).json()['txid']
 
-
     def get_optimal_fee(self, crypto, tx_bytes):
         url = "%s://%s/%s/utils/estimatefee?nbBlocks=2" % (self.protocol, self.domain, self.api_tag)
         return self.get_url(url).json()
+
 
 class MYRCryptap(BitpayInsight):
     service_id = 30
@@ -1144,12 +1143,14 @@ class Verters(BitpayInsight):
     ssl_verify = False
     version = 0.2
 
+
 class ReddcoinCom(BitpayInsight):
     service_id = 33
     supported_cryptos = ['rdd']
     domain = "live.reddcoin.com"
     name = "Reddcoin.com"
     version = 0.2
+
 
 class CoinTape(Service):
     service_id = 35
@@ -1162,6 +1163,7 @@ class CoinTape(Service):
         url = self.base_url + "/v1/fees/recommended"
         response = self.get_url(url).json()
         return int(response['fastestFee'] * tx_bytes)
+
 
 class BitGo(Service):
     service_id = 36
@@ -1281,6 +1283,7 @@ class BitGo(Service):
         fee_kb = response['feePerKb']
         return int(tx_bytes * fee_kb / 1024)
 
+
 class Blockonomics(Service):
     service_id = 37
     supported_cryptos = ['btc']
@@ -1347,6 +1350,7 @@ class BlockExplorerCom(BitpayInsight):
     name = "BlockExplorer.com"
     version = 0.4
 
+
 class BitNodes(Service):
     domain = "https://bitnodes.21.co"
     service_id = 39
@@ -1376,6 +1380,7 @@ class BitNodes(Service):
             })
 
         return nodes
+
 
 class BitcoinFees21(CoinTape):
     base_url = "https://bitcoinfees.21.co/api"
@@ -1410,6 +1415,7 @@ class ChainRadar(Service):
             tx_count=len(r['transactions'])
         )
 
+
 class Mintr(Service):
     service_id = 42
     name = "Mintr.org"
@@ -1420,7 +1426,7 @@ class Mintr(Service):
     explorer_address_url = "https://{coin}.mintr.org/address/{address}"
     explorer_blocknum_url = "https://{coin}.mintr.org/block/{blocknum}"
     explorer_blockhash_url = "https://{coin}.mintr.org/block/{blockhash}"
-    ssl_verify = False # ssl is broken (set to true when it's fixed)
+    ssl_verify = False  # ssl is broken (set to true when it's fixed)
 
     @classmethod
     def _get_coin(cls, crypto):
@@ -1500,6 +1506,7 @@ class Mintr(Service):
             merkle_root=b['merkleroot'],
             total_fees=float(b['fee'])
         )
+
 
 class Iquidus(Service):
     @classmethod
@@ -1596,7 +1603,7 @@ class HolyTransaction(Iquidus):
 
     explorer_tx_url = "https://{coin}.holytransaction.com/tx/{txid}"
     explorer_address_url = "https://{coin}.holytransaction.com/address/{address}"
-    #explorer_blocknum_url = "https://{coin}.blockexplorers.net/block/{blocknum}"
+    # explorer_blocknum_url = "https://{coin}.blockexplorers.net/block/{blocknum}"
     explorer_blockhash_url = "https://{coin}.holytransaction.com/block/{blockhash}"
     api_homepage = "https://dash.holytransaction.com/info"
 
@@ -1645,7 +1652,7 @@ class RICCryptap(BitpayInsight):
 class ProHashing(Service):
     service_id = 46
     domain = "prohashing.com"
-    name= "ProHashing"
+    name = "ProHashing"
 
     def get_balance(self, crypto, address, confirmations=1):
         url = "https://%s/explorerJson/getAddress?address=%s&coin_id=%s" % (
@@ -1727,6 +1734,7 @@ class ProHashing(Service):
             difficulty=r['difficulty'],
         )
 
+
 class SiampmDashInsight(BitpayInsight):
     service_id = 47
     supported_cryptos = ['dash']
@@ -1734,6 +1742,7 @@ class SiampmDashInsight(BitpayInsight):
     domain = "insight.dash.siampm.com"
     name = "Siampm Dash Insight"
     version = 0.2
+
 
 class BlockExperts(Service):
     service_id = 48
@@ -1794,6 +1803,7 @@ class BlockExperts(Service):
             merkle_root=r['merkleroot'],
         )
 
+
 class MultiCoins(Service):
     service_id = 49
     supported_cryptos = ['ppc']
@@ -1804,6 +1814,7 @@ class MultiCoins(Service):
         """
         url = "https://multicoins.org/api/v1/tx/push/ppc"
         return self.post_url(url, {'hex': tx_hex})
+
 
 class BitcoinChain(Service):
     service_id = 50
@@ -1837,6 +1848,7 @@ class BitcoinChain(Service):
     def get_single_transaction(self, crypto, txid):
         url = "%s/v1/tx/%s" % (self.base, txid)
         r = self.get_url(url).json()
+
 
 class CounterParty(Service):
     protocol = "http"
@@ -1992,6 +2004,7 @@ class CounterParty(Service):
         from moneywagon import push_tx
         return push_tx('btc', tx_hex, random=True)
 
+
 class CoinDaddy1(CounterParty):
     service_id = 52
     port = 4000
@@ -2000,10 +2013,12 @@ class CoinDaddy1(CounterParty):
     password = '1234'
     name = "Coin Daddy #1"
 
+
 class CoinDaddy2(CoinDaddy1):
     service_id = 53
     port = 4100
     name = "Coin Daddy #2"
+
 
 class CounterPartyChain(Service):
     service_id = 54
@@ -2023,6 +2038,7 @@ class CounterPartyChain(Service):
         from moneywagon import push_tx
         return push_tx('btc', tx_hex, random=True)
 
+
 class EtherChain(Service):
     service_id = 55
     name = "EtherChain"
@@ -2040,11 +2056,13 @@ class EtherChain(Service):
         data = self.get_url(url).json()['data']
         return data[0]['balance'] / 1e18
 
+
 class VTConline(Iquidus):
     service_id = 57
     name = "VTCOnline.org"
     base_url = "https://explorer.vtconline.org"
     supported_cryptos = ['vtc']
+
 
 class Etherscan(Service):
     service_id = 58
@@ -2055,6 +2073,25 @@ class Etherscan(Service):
         url = "https://api.etherscan.io/api?module=account&action=balance&address=%s&tag=latest" % address
         response = self.get_url(url).json()
         return int(response['result']) / 1e18
+
+    def get_transactions(self, crypto, address, confirmations=1):
+        url = "http://api.etherscan.io/api?module=account&action=txlist&address=%s&sort=desc" % address
+        response = self.get_url(url).json()
+
+        transactions = []
+        for tx in response.get('result', []):
+            if int(tx['confirmations']) < confirmations or tx['isError'] != '0':
+                continue
+            transactions.append(dict(
+                date=arrow.get(tx['timeStamp']).datetime,
+                amount=tx['value'] / 1e18,
+                txid=tx['hash'],
+                sender=tx['from'],
+                receiver=tx['to'],
+                block=int(tx['blockNumber']),
+                confirmations=int(tx['confirmations'])
+            ))
+        return transactions
 
 
 class FeathercoinCom2(BitcoinAbe):
@@ -2094,6 +2131,7 @@ class TradeBlock(Service):
             outputs=outs,
             fees=tx['fee'],
         )
+
 
 class MasterNodeIO(BitpayInsight):
     service_id = 72
@@ -2148,6 +2186,7 @@ class Bchain(Service):
         resp = self.get_url(url)
         return resp.json()['balance'] / 1e8
 
+
 class PressTab(Service):
     service_id = 79
 
@@ -2158,6 +2197,7 @@ class PressTab(Service):
         r = self.get_url(url).json()
         return r['balance']
 
+
 class MyNXT(Service):
     service_id = 80
 
@@ -2165,6 +2205,7 @@ class MyNXT(Service):
         url = "https://www.mynxt.info/blockexplorer/nxt/api_getFullAccount.php?account=%s" % address
         r = self.get_url(url).json()
         return float(r['balanceNQT']) / 1e8
+
 
 class ZChain(Service):
     service_id = 81
@@ -2201,15 +2242,18 @@ class LemoncoinOfficial(Iquidus):
     base_url = "http://45.32.180.199:3001/"
     supported_crypto = ['lemon']
 
+
 class GeertcoinExplorer(Iquidus):
     service_id = 86
     base_url = "http://geertcoin.com:1963"
     supported_crypto = ['geert']
 
+
 class UnlimitedCoinOfficial(Iquidus):
     service_id = 87
     base_url = "http://unlimitedcoin.info:3001"
     supported_cryptos = ['ulm']
+
 
 class MarscoinOfficial(BitpayInsight):
     service_id = 88
@@ -2219,10 +2263,12 @@ class MarscoinOfficial(BitpayInsight):
     name = "MarsCoin.org (Insight)"
     version = 0.2
 
+
 class TerracoinIO(BitcoinAbe):
     service_id = 97
     base_url = "https://explorer.terracoin.io/chain/Sha256NmcAuxPowChain"
     supported_cryptos = ['trc']
+
 
 class VergeCurrencyInfo(Iquidus):
     service_id = 98
@@ -2230,12 +2276,14 @@ class VergeCurrencyInfo(Iquidus):
     supported_cryptos = ['xvg']
     name = "VergeCurrencyInfo"
 
+
 class FujiInsght(BitpayInsight):
     service_id = 99
     domain = "explorer.fujicoin.org"
     protocol = 'http'
     supported_cryptos = ['fjc']
     version = 0.2
+
 
 class WebBTC(Service):
     service_id = 100
@@ -2360,12 +2408,14 @@ class BlockExplorerCash(BitpayInsight):
     name = "BlockExplorer BCH"
     version = 0.4
 
+
 class Litecore(BitpayInsight):
     service_id = 127
     domain = "insight.litecore.io"
     supported_cryptos = ['ltc']
     name = "Litecore (Insight)"
     version = 0.4
+
 
 class TrezorBCH(BitpayInsight):
     service_id = 128
@@ -2374,12 +2424,14 @@ class TrezorBCH(BitpayInsight):
     name = "Trezor BCH Insight"
     version = 0.4
 
+
 class BitpayInsightBCH(BitpayInsight):
     service_id = 129
     domain = "bch-insight.bitpay.com"
     supported_cryptos = ['bch']
     name = "Insight BCH (Bitpay)"
     version = 5
+
 
 class EthPlorer(Service):
     service_id = 130
@@ -2393,20 +2445,107 @@ class EthPlorer(Service):
             if token['tokenInfo']['symbol'] == crypto.upper():
                 return token['balance']
 
+    def get_transactions(self, crypto, address, confirmations=1):
+        url = "https://api.ethplorer.io/getAddressTransactions/%s?limit=50&apiKey=freekey" % address
+        response = self.get_url(url).json()
+
+        transactions = []
+        for tx in response:
+            # if int(tx['confirmations']) < confirmations or tx['isError'] != '0':
+            if tx['success'] != True:
+                continue
+            transactions.append(dict(
+                date=arrow.get(tx['timeStamp']).datetime,
+                amount=tx['value'],
+                txid=tx['hash'],
+                sender=tx['from'],
+                receiver=tx['to'],
+                # block=int(tx['blockNumber']),
+                # confirmations=int(tx['confirmations'])
+            ))
+        return transactions
+
+
+    # def get_single_transaction(self, crypto, txid):
+    #     """
+    #     Get detailed information about a single transaction.
+    #
+    #     time - datetime, when this transaction was confirmed.
+    #     block_hash - string, the id of the block this tx is confirmed in.
+    #     block_number - integer, which block number this tx is confirmed in.
+    #     hex - the entire tx encoded in hex format
+    #     size - size of TX in bytes.
+    #     inputs - list of {address:, amount:, txid:}, amount is in satoshis
+    #     outputs - list of {address:, amount:, scriptPubKey:}, amount is in satoshis, scriptPubKey is hex
+    #     txid
+    #     total_out - (in satoshis)
+    #     total_ins - (in satoshis)
+    #     confirmations - number of confirmations this TX curently has
+    #     fee - total amount of fees this TX leaves for miners (in satoshis)
+    #
+    #     """
+    #
+    #     def get_single_transaction(self, crypto, txid, skip_input_info=False):
+    #         url = "https://api.ethplorer.io/getAddressTransactions/%s?limit=50&apiKey=freekey" % txid
+    #         tx = self.make_rpc_call(
+    #             ["getrawtransaction", txid, "1"], internal=skip_input_info
+    #         )
+    #
+    #         ins = []
+    #         for n in tx['vin']:
+    #             vout = n['vout']
+    #             address = None
+    #             amount = None
+    #             if not skip_input_info:
+    #                 # do recursion to get amount and address of vin
+    #                 # "skip_input_info" to avoid infitite recursion
+    #                 inner_tx = self.get_single_transaction(crypto, n['txid'], skip_input_info=True)
+    #                 the_out = inner_tx['outputs'][vout]
+    #                 address = the_out['address']
+    #                 amount = the_out['amount']
+    #
+    #             ins.append({
+    #                 'address': address,
+    #                 'amount': amount,
+    #                 'txid': n['txid'],
+    #             })
+    #
+    #         outs = [
+    #             {
+    #                 'address': x['scriptPubKey']['addresses'][0],
+    #                 'amount': x['valueSat'],
+    #                 'scriptPubKey': x['scriptPubKey']['hex'],
+    #             } for x in tx['vout']
+    #         ]
+    #
+    #         return dict(
+    #             txid=tx['txid'],
+    #             confirmations=tx['confirmations'],
+    #             size=tx['size'],
+    #             time=arrow.get(tx['blocktime']).datetime,
+    #             block_hash=tx.get('blockhash', None),
+    #             block_number=tx['height'],
+    #             inputs=ins,
+    #             outputs=outs,
+    #         )
+
 class VertcoinInfo(Iquidus):
     service_id = 135
     base_url = "http://explorer.vertcoin.info"
     supported_cryptos = ['vtc']
+
 
 class THCBlock(Iquidus):
     service_id = 136
     base_url = "http://thcblock.ga"
     supported_crypto = ['thc']
 
+
 class Btgexp(Iquidus):
     service_id = 137
     base_url = "http://btgexp.com"
     supported_cryptos = ['btg']
+
 
 class MonaInsight(BitpayInsight):
     service_id = 146
