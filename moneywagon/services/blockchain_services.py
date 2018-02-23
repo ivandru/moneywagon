@@ -2075,7 +2075,7 @@ class Etherscan(Service):
         return int(response['result']) / 1e18
 
     def get_transactions(self, crypto, address, confirmations=1):
-        self.timeout = 500
+        self.timeout = 500000
         self.random_wait_seconds = 2
         url = "http://api.etherscan.io/api?module=account&action=txlist&address=%s&offset=50&page=1&sort=desc" % address
         response = self.get_url(url).json()
@@ -2448,7 +2448,7 @@ class EthPlorer(Service):
                 return token['balance']
 
     def get_transactions(self, crypto, address, confirmations=1):
-        self.timeout = 500
+        self.timeout = 500000
         self.random_wait_seconds = 2
         url = "https://api.ethplorer.io/getAddressTransactions/%s?limit=50&apiKey=freekey" % address
         response = self.get_url(url).json()
