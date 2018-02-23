@@ -2086,7 +2086,7 @@ class Etherscan(Service):
                 continue
             transactions.append(dict(
                 date=arrow.get(tx['timeStamp']).datetime,
-                amount=tx['value'] / 1e18,
+                amount=int(tx['value']) / 1e18,
                 txid=tx['hash'],
                 sender=tx['from'],
                 receiver=tx['to'],
