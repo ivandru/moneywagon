@@ -2075,7 +2075,7 @@ class Etherscan(Service):
         return int(response['result']) / 1e18
 
     def get_transactions(self, crypto, address, confirmations=1):
-        url = "http://api.etherscan.io/api?module=account&action=txlist&address=%s&sort=desc" % address
+        url = "http://api.etherscan.io/api?module=account&action=txlist&address=%s&offset=50&page=1&sort=desc" % address
         response = self.get_url(url).json()
 
         transactions = []
