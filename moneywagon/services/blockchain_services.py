@@ -106,7 +106,7 @@ class FullNodeCLIInterface(Service):
 
 class BlockCypher(Service):
     service_id = 2
-    supported_cryptos = ['btc', 'ltc', 'doge']
+    supported_cryptos = ['btc', 'ltc', 'doge', 'eth']
     api_homepage = "http://dev.blockcypher.com/"
 
     explorer_address_url = "https://live.blockcypher.com/{crypto}/address/{address}"
@@ -992,7 +992,7 @@ class BitpayInsight(Service):
             addresses=list(set(matched_addresses))
         )
 
-    def get_transactions(self, crypto, address):
+    def get_transactions(self, crypto, address, confirmations=1):
         url = "%s://%s/%s/txs/?address=%s" % (self.protocol, self.domain, self.api_tag, address)
         response = self.get_url(url)
         transactions = []
@@ -1000,7 +1000,7 @@ class BitpayInsight(Service):
             transactions.append(self._format_tx(tx, [address]))
         return transactions
 
-    def get_transactions_multi(self, crypto, addresses):
+    def get_transactions_multi(self, crypto, addresses, confirmations=1):
         url = "%s://%s/%s/addrs/%s/txs" % (
             self.protocol, self.domain, self.api_tag, ','.join(addresses)
         )
