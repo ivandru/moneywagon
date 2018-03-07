@@ -1,3 +1,5 @@
+import logging
+
 from moneywagon import (
     get_unspent_outputs, CurrentPrice, get_optimal_fee, PushTx,
     get_onchain_exchange_rates,
@@ -33,6 +35,7 @@ class Transaction(object):
         Convert a value to satoshis. units can be any fiat currency.
         By default the unit is satoshi.
         """
+        logging.info("from_unit_to_satoshi : Value: {}, unit: {}".format(value, unit))
         if not unit or unit == 'satoshi':
             return value
         if unit == 'bitcoin' or unit == 'btc':
