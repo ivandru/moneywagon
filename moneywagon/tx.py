@@ -43,6 +43,8 @@ class Transaction(object):
 
         # assume fiat currency that we can convert
         convert = get_current_price(self.crypto, unit)
+        if isinstance(convert, tuple):
+            convert = convert[0]
         logging.info("from_unit_to_satoshi : Convert: {}".format(convert))
 
         return int(value / convert * 1e8)
