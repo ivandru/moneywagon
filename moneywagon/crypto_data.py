@@ -468,7 +468,8 @@ crypto_data = {
             'get_block': [
                 ProHashing, SiampmDashInsight, HolyTransaction, MasterNodeIO,
                 DashOrgInsight
-            ]
+            ],
+            "get_optimal_fee": [ BlockCypher ]
         },
     },
     'rdd': {
@@ -2366,7 +2367,7 @@ crypto_data = {
                 BitpayInsightBCH, BitcoinComCashExplorer, BlockDozer, TrezorBCH,
                 BlockExplorerCash
             ],
-            "get_optimal_fee": []
+            "get_optimal_fee": [TrezorBCH]
         },
     },
     'leo': {

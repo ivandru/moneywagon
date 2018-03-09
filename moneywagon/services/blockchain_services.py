@@ -106,7 +106,7 @@ class FullNodeCLIInterface(Service):
 
 class BlockCypher(Service):
     service_id = 2
-    supported_cryptos = ['btc', 'ltc', 'doge', 'eth']
+    supported_cryptos = ['btc', 'ltc', 'doge', 'eth', 'dash']
     api_homepage = "http://dev.blockcypher.com/"
 
     explorer_address_url = "https://live.blockcypher.com/{crypto}/address/{address}"
@@ -2425,6 +2425,10 @@ class TrezorBCH(BitpayInsight):
     supported_cryptos = ['bch']
     name = "Trezor BCH Insight"
     version = 0.4
+
+    def get_optimal_fee(self, crypto, tx_bytes):
+        res = super().get_optimal_fee(crypto, tx_bytes)
+        return int(tx_bytes * res['2'] * 1e8 / 1024)
 
 
 class BitpayInsightBCH(BitpayInsight):
