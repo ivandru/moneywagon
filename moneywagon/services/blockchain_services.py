@@ -265,7 +265,7 @@ class BlockSeer(Service):
         url = self.json_txs_url.format(address=address)
         transactions = []
         for tx in self.get_url(url).json()['data']['address']['transactions']:
-            logging.info("[TxAnalysis] BitGo: {}".format(tx))
+            logging.info("[TxAnalysis] {}: {}".format(self.name, tx))
             transactions.append(dict(
                 date=arrow.get(tx['time']).datetime,
                 amount=tx['delta'] / 1e8,
@@ -363,7 +363,7 @@ class SmartBitAU(Service):
     def get_single_transaction(self, crypto, txid):
         url = "%s/tx/%s" % (self.base_url, txid)
         r = self.get_url(url).json()['transaction']
-        logging.info("[TxAnalysis] {}: {}".format(self.name, r))
+        logging.info("[TxAnalysis] (single) {}: {}".format(self.name, r))
         ins = [
             {
                 'address': x['addresses'][0],
@@ -517,7 +517,7 @@ class ChainSo(Service):
         url = "%s/get_tx/%s/%s" % (self.base_url, crypto, txid)
         r = self.get_url(url).json()['data']
         tx = deserialize(str(r['tx_hex']))
-        logging.info("[TxAnalysis] {}: {}".format(self.name, tx))
+        logging.info("[TxAnalysis] (single) {}: {}".format(self.name, tx))
 
         outs = [
             {
@@ -568,7 +568,7 @@ class CoinPrism(Service):
         url = "%s/addresses/%s/transactions" % (self.base_url, address)
         transactions = []
         for tx in self.get_url(url).json():
-            logging.info("[TxAnalysis] CoinPrism: {}".format(tx))
+            logging.info("[TxAnalysis] {}: {}".format(self.name, tx))
             transactions.append(dict(
                 amount=sum([x['value'] / 1e8 for x in tx['outputs'] if address in x['addresses']]),
                 txid=tx['hash'],
@@ -598,7 +598,7 @@ class CoinPrism(Service):
     def get_single_transaction(self, crypto, txid):
         url = "%s/transactions/%s" % (self.base_url, txid)
         r = self.get_url(url).json()
-        logging.info("[TxAnalysis] {}: {}".format(self.name, r))
+        logging.info("[TxAnalysis] (single) {}: {}".format(self.name, r))
         ins = [
             {
                 'address': x['addresses'][0] if x['addresses'] else None,
@@ -897,7 +897,7 @@ class CryptoID(Service):
             crypto, txid, self.api_key
         )
         r = self.get_url(url).json()
-        logging.info("[TxAnalysis] {}: {}".format(self.name, r))
+        logging.info("[TxAnalysis] (single) {}: {}".format(self.name, r))
 
         return dict(
             time=arrow.get(r['timestamp']).datetime,
@@ -1037,7 +1037,7 @@ class BitpayInsight(Service):
         if d.get('blocktime'):
             block_time = arrow.get(d['blocktime']).datetime
 
-        logging.info("[TxAnalysis] (single) BitpayInsight: {}".format(d))
+            logging.info("[TxAnalysis] (single) {}: {}".format(self.name, d))
         return dict(
             time=block_time,
             block_number=d.get("blockheight"),
@@ -1201,7 +1201,7 @@ class BitGo(Service):
 
         txs = []
         for tx in response['transactions']:
-            logging.info("[TxAnalysis] BitGo: {}".format(tx))
+            logging.info("[TxAnalysis] {}: {}".format(self.name, tx))
             my_outs = [x['value'] for x in tx['entries'] if x['account'] == address]
 
             txs.append(dict(
