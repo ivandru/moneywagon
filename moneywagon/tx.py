@@ -276,18 +276,28 @@ class Transaction(object):
         return tx
 
     def push(self, services=None, redundancy=1):
+        logging.info('1')
         if not services:
             services = get_optimal_services(self.crypto, "push_tx")
+        logging.info('2')
 
         self.pushers = []
+        logging.info('3')
         pusher = PushTx(services=services, verbose=self.verbose)
+        logging.info('4')
         results = [pusher.action(self.crypto, self.get_hex())]
+        logging.info('5')
 
         try:
+            logging.info('6')
             for service in services[1:redundancy-1]:
+                logging.info('8')
                 pusher = PushTx(services=[service], verbose=self.verbose)
+                logging.info('9')
                 results.append(self.pusher.action(self.crypto, self.get_hex()))
+                logging.info('10')
                 self.pushers.append(pusher)
+                logging.info('11')
         except:
             raise Exception("Partial push. Some services returned success, some failed.")
 
