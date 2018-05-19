@@ -237,67 +237,74 @@ class Transaction(object):
         """
         Given all the data the user has given so far, make the hex using pybitcointools
         """
+        logging.info('2')
+
         total_ins_satoshi = self.total_input_satoshis()
+        logging.info('3')
         if total_ins_satoshi == 0:
             raise ValueError("Can't make transaction, there are zero inputs")
+        logging.info('4')
 
         # Note: there can be zero outs (sweep or coalesc transactions)
         total_outs_satoshi = sum([x['value'] for x in self.outs])
+        logging.info('5')
 
         if not self.fee_satoshi:
             self.fee() # use default of $0.02
+        logging.info('6')
 
         change_satoshi = total_ins_satoshi - (total_outs_satoshi + self.fee_satoshi)
+        logging.info('7')
 
         if change_satoshi < 0:
             raise ValueError(
                 "Input amount (%s) must be more than all output amounts (%s) plus fees (%s). You need more %s."
                 % (total_ins_satoshi, total_outs_satoshi, self.fee_satoshi, self.crypto.upper())
             )
+        logging.info('8')
 
         ins = [x['input'] for x in self.ins]
+        logging.info('9')
 
         if change_satoshi > 0:
+
             if self.verbose:
                 print("Adding change address of %s satoshis to %s" % (change_satoshi, self.change_address))
             change = [{'value': change_satoshi, 'address': self.change_address}]
+            logging.info('10')
         else:
             change = [] # no change ?!
             if self.verbose: print("Inputs == Outputs, no change address needed.")
+            logging.info('11')
 
         tx = mktx(ins, self.outs + change)
+        logging.info('12')
 
         if signed:
             for i, input_data in enumerate(self.ins):
+                logging.info('13')
+
                 if not input_data['private_key']:
                     raise Exception("Can't sign transaction, missing private key for input %s" % i)
                 tx = sign(tx, i, input_data['private_key'])
+                logging.info('14')
 
         return tx
 
     def push(self, services=None, redundancy=1):
-        logging.info('1')
+
         if not services:
             services = get_optimal_services(self.crypto, "push_tx")
-        logging.info('2')
 
         self.pushers = []
-        logging.info('3')
         pusher = PushTx(services=services, verbose=self.verbose)
-        logging.info('4')
         results = [pusher.action(self.crypto, self.get_hex())]
-        logging.info('5')
 
         try:
-            logging.info('6')
             for service in services[1:redundancy-1]:
-                logging.info('8')
                 pusher = PushTx(services=[service], verbose=self.verbose)
-                logging.info('9')
                 results.append(self.pusher.action(self.crypto, self.get_hex()))
-                logging.info('10')
                 self.pushers.append(pusher)
-                logging.info('11')
         except:
             raise Exception("Partial push. Some services returned success, some failed.")
 

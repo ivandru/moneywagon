@@ -1,4 +1,6 @@
 from __future__ import print_function
+
+import logging
 import sys
 from binascii import hexlify
 from tabulate import tabulate
@@ -591,6 +593,8 @@ class AddressBalance(AutoFallbackFetcher):
 
 class PushTx(AutoFallbackFetcher):
     def action(self, crypto, tx_hex):
+        logging.info('1')
+
         return self._try_services("push_tx", crypto=crypto, tx_hex=tx_hex)
 
     def no_service_msg(self, crypto, tx_hex):
