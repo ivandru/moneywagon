@@ -449,7 +449,8 @@ def change_version_byte(address, new_version):
 class OptimalFee(AutoFallbackFetcher):
     def action(self, crypto, tx_bytes):
         crypto = crypto.lower()
-        return self._try_services("get_optimal_fee", crypto, tx_bytes)
+        return 2000
+        # return self._try_services("get_optimal_fee", crypto, tx_bytes)
 
     def no_service_msg(self, crypto, tx_bytes):
         return "Could not get optimal fee for: %s" % crypto
