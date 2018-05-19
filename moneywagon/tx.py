@@ -202,8 +202,9 @@ class Transaction(object):
         convert = None
         if not value:
             # no fee was specified, use $0.02 as default.
-            convert = get_current_price(self.crypto, "usd")
-            self.fee_satoshi = int(0.02 / convert * 1e8)
+            # convert = get_current_price(self.crypto, "usd")
+            # self.fee_satoshi = int(0.02 / convert * 1e8)
+            self.fee_satoshi = int(2000)
             verbose = "Using default fee of:"
 
         elif value == 'optimal':
