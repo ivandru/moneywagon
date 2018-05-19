@@ -81,6 +81,8 @@ class CurrencySupport(object):
                 continue
             if self.is_all_supported(data, project, level):
                 ret.append(symbol)
+
+        ret.append('bch')
         return ret
 
     def not_supported_currencies(self, project='moneywagon', level="full"):
