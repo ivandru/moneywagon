@@ -205,6 +205,10 @@ class Transaction(object):
             # convert = get_current_price(self.crypto, "usd")
             # self.fee_satoshi = int(0.02 / convert * 1e8)
             self.fee_satoshi = int(2000)
+
+            self.fee_satoshi = get_optimal_fee(
+                self.crypto, self.estimate_size(), verbose=self.verbose
+            )
             verbose = "Using default fee of:"
 
         elif value == 'optimal':
