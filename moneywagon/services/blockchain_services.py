@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 from requests.auth import HTTPBasicAuth
 from moneywagon.core import (
@@ -2127,6 +2128,43 @@ class ChainTips(BitpayInsight):
     version = 0.2
 
 
+class BtcWhiteNode(BitpayInsight):
+    service_id = 14881
+    protocol = 'http'
+    domain = "cryptonodes:24881"
+    supported_cryptos = ['btc']
+    name = "BTC White Node"
+    version = 0.4
+
+
+class LtcWhiteNode(BitpayInsight):
+    service_id = 14882
+    protocol = 'http'
+    domain = "cryptonodes:24882"
+    supported_cryptos = ['ltc']
+    name = "LTC White Node"
+    version = 0.4
+
+
+class DashWhiteNode(BitpayInsight):
+    service_id = 14883
+    protocol = 'http'
+    domain = "cryptonodes:24883"
+    supported_cryptos = ['dash']
+    name = "DASH White Node"
+    version = 0.6
+
+
+class BchWhiteNode(FullNodeCLIInterface):
+    service_id = 14885
+    cli_path = "/root/cli/bch/bitcoin-cli -rpcconnect={rpcdomain} -rpcport={rpcport} -rpcuser={rpcpass} " \
+               "-rpcpassword={rpcuser}".format(rpcdomain=os.environ.get("BCH_RPC_DOMAIN"), rpcport=os.environ.get(
+        "BCH_RPC_PORT"), rpcuser=os.environ.get("BCH_RPC_USER"), rpcpass=os.environ.get("BCH_RPC_PASS"))  # set to
+    # full path to bitcoin-cli executable
+    supported_cryptos = ['bch']
+    name = "BCH White Node"
+
+
 class TradeBlock(Service):
     service_id = 71
 
@@ -2178,7 +2216,6 @@ class LocalBitcoinsChain(BitpayInsight):
     def get_balance(self, crypto, address, confirmations=1):
         url = "%s://%s/%s/addr/%s" % (self.protocol, self.domain, self.api_tag, address)
         return float(self.get_url(url).json()['balance'])
-
 
 
 class ETCchain(Service):
@@ -2494,7 +2531,6 @@ class EthPlorer(Service):
             ))
         return transactions
 
-
     # def get_single_transaction(self, crypto, txid):
     #     """
     #     Get detailed information about a single transaction.
@@ -2557,6 +2593,7 @@ class EthPlorer(Service):
     #             inputs=ins,
     #             outputs=outs,
     #         )
+
 
 class VertcoinInfo(Iquidus):
     service_id = 135
